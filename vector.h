@@ -29,7 +29,6 @@ public:
         return *this;
     }
 
-
      void push_back(const T& value) {
         if (_size >= _capacity) {
             size_t new_capacity = (_capacity == 0) ? 1 : _capacity * 2;
@@ -68,7 +67,55 @@ public:
     std::allocator<T>& get_allocator() {
         return _alloc;
     }
+    void pop_back() {
+        if (!empty()) {
+            _alloc.destroy(_data + --_size);
+        }
+    }
 
+    void swap(MyVector& other) noexcept {
+        std::swap(_data, other._data);
+        std::swap(_size, other._size);
+        std::swap(_capacity, other._capacity);
+    }
+    T& at(size_t index) {
+        if (index >= _size)
+            throw std::out_of_range("index out of range");
+        return _data[index];
+    }
+
+    const T& at(size_t index) const {
+        if (index >= _size)
+            throw std::out_of_range("index out of range");
+        return _data[index];
+    }
+
+    T& front() { return at(0); }
+    const T& front() const { return at(0); }
+
+    T& back() { return at(_size - 1); }
+    const T& back() const { return at(_size - 1); }
+
+    T* data() noexcept { return _data; }
+    const T* data() const noexcept { return _data; }
+
+    bool empty() const noexcept { return _size == 0; }
+
+
+
+    size_t capacity() const noexcept { return _capacity; }
+
+    void resize(size_t count, const T& value = T()) {
+        if (count > _size) {
+            ensure_capacity(count);
+            while (_size < count)
+                push_back(value);
+        } else if (count < _size) {
+            for (size_t i = count; i < _size; ++i)
+                _alloc.destroy(_data + i);
+            _size = count;
+        }
+    }
 
 private:
     std::allocator<T> _alloc;
